@@ -29,7 +29,11 @@ export type Project = {
     liveUrl?: string;
 };
 
-const ProjectCard: React.FC<Project> = ({ title, description, tech, imageUrl, author, liveUrl }) => {
+type ProjectCardProps = Project & {
+    priority?: boolean;
+};
+
+const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, imageUrl, author, liveUrl, priority = false }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
@@ -71,7 +75,12 @@ const ProjectCard: React.FC<Project> = ({ title, description, tech, imageUrl, au
       }}
     >
       <div className="relative">
-        <img src={imageUrl} alt={title} className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105" />
+        <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            loading={priority ? 'eager' : 'lazy'}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <motion.div
             className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10"

@@ -38,8 +38,8 @@ const Websites: React.FC = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
         >
-            {websites.map((project) => (
-              <ProjectCard key={project.id} {...project} />
+            {websites.map((project, index) => (
+              <ProjectCard key={project.id} {...project} priority={index < 3} />
             ))}
         </motion.div>
       ) : (

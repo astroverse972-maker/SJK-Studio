@@ -50,6 +50,7 @@ const About: React.FC = () => {
               src="https://res.cloudinary.com/dubg7bfmv/image/upload/w_800,q_auto,f_auto/v1761039343/3-3_qfp2lk.jpg" 
               alt="SJK Studio"
               className="rounded-lg border-2 border-primary/50 shadow-lg shadow-primary/20 transition-all duration-300 hover:shadow-glow-gold"
+              loading="eager"
             />
           </motion.div>
         </motion.div>
