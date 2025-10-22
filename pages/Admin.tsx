@@ -172,7 +172,6 @@ const Admin: React.FC = () => {
                     <input type="text" name="techString" placeholder="Tech Stack (comma-separated)" value={currentProject.techString} onChange={handleInputChange} required className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     <select name="category" value={currentProject.category} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none">
                         <option value="website">Website</option>
-                        <option value="app">App</option>
                     </select>
                     <div className="flex gap-4">
                         <button type="submit" className="px-6 py-2 bg-primary text-base-dark font-bold rounded hover:bg-opacity-80 transition-colors">

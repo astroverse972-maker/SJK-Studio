@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Project } from './ProjectCard';
 import useProjects from '../hooks/useProjects';
 
 const ProjectSlider: React.FC = () => {
@@ -24,7 +23,7 @@ const ProjectSlider: React.FC = () => {
                 }}
             >
                 {duplicatedProjects.map((project, index) => (
-                    <Link to={project.category === 'website' ? '/websites' : '/apps'} key={index} className="flex-shrink-0">
+                    <Link to={'/websites'} key={index} className="flex-shrink-0">
                         <motion.div 
                             className="w-72 mx-4 relative"
                             whileHover={{ scale: 1.05, y: -5, zIndex: 10 }}

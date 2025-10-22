@@ -5,7 +5,6 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
 import Websites from './pages/Websites';
-import Apps from './pages/Apps';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 
@@ -17,7 +16,6 @@ const App: React.FC = () => {
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           <Route path="websites" element={<Websites />} />
-          <Route path="apps" element={<Apps />} />
           <Route path="contact" element={<Contact />} />
           <Route path="admin" element={<Admin />} />
         </Route>
