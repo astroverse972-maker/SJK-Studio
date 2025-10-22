@@ -34,6 +34,7 @@ const ProjectSlider: React.FC = () => {
                                     src={project.imageUrl}
                                     alt={project.title}
                                     className="w-full h-48 object-cover"
+                                    loading={index < projects.length ? 'eager' : 'lazy'}
                                 />
                                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <h3 className="text-primary font-bold text-lg text-center px-2">{project.title}</h3>
