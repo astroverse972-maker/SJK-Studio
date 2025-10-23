@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import useProjects from '../hooks/useProjects';
 
 const ProjectSlider: React.FC = () => {
-    const projects = useProjects();
+    const allProjects = useProjects();
+    const projects = allProjects.filter(p => p.category === 'website');
     // Duplicate the projects for a seamless, infinite loop
     const duplicatedProjects = projects.length > 0 ? [...projects, ...projects] : [];
     

@@ -5,8 +5,10 @@ import { Project } from '../components/ProjectCard';
 const Admin: React.FC = () => {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>('');
+    const [loginError, setLoginError] = useState<string>('');
     const [projects, setProjects] = useState<Project[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [saveError, setSaveError] = useState<string>('');
     const [editingProject, setEditingProject] = useState<Project | null>(null);
 
     const emptyProject: Omit<Project, 'id' | 'author'> = {
@@ -30,33 +32,50 @@ const Admin: React.FC = () => {
         }
     }, []);
     
-    const loadProjects = () => {
+    const loadProjects = async () => {
+        setIsLoading(true);
+        setSaveError('');
         try {
-            const localProjects = localStorage.getItem('sjk-studio-projects');
-            if (localProjects) {
-                setProjects(JSON.parse(localProjects));
-            }
+            const response = await fetch('https://sjkstudio.vercel.app/api/projects');
+            if (!response.ok) throw new Error('Failed to load projects');
+            const data = await response.json();
+            setProjects(data);
         } catch (err) {
-            console.error("Failed to load projects from local storage", err);
-            setError('Failed to load projects.');
+            console.error("Failed to load projects from API", err);
+            setSaveError(err instanceof Error ? err.message : 'Failed to load projects.');
+        } finally {
+            setIsLoading(false);
         }
     };
     
-    const saveProjects = (updatedProjects: Project[]) => {
+    const saveProjects = async (updatedProjects: Project[]) => {
+        setSaveError('');
         try {
-            localStorage.setItem('sjk-studio-projects', JSON.stringify(updatedProjects));
-            setProjects(updatedProjects);
+            const response = await fetch('https://sjkstudio.vercel.app/api/projects', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedProjects),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to save projects.');
+            }
+            
+            setProjects(updatedProjects); // Update local state on successful save
+            return true;
         } catch (err) {
-            console.error("Failed to save projects to local storage", err);
-            setError('Failed to save projects.');
+            console.error("Failed to save projects to API", err);
+            setSaveError(err instanceof Error ? err.message : 'Failed to save projects.');
+            return false;
         }
     };
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
-        setError('');
+        setLoginError('');
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('https://sjkstudio.vercel.app/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password })
@@ -69,15 +88,16 @@ const Admin: React.FC = () => {
                 sessionStorage.setItem('sjk-studio-admin-logged-in', 'true');
                 loadProjects();
             } else {
-                setError(data.message || 'Login failed.');
+                setLoginError(data.message || 'Login failed.');
             }
         } catch (err) {
-            setError('An error occurred during login.');
+            setLoginError('An error occurred during login.');
         }
     };
     
     const handleLogout = () => {
         setIsLoggedIn(false);
+        setPassword('');
         sessionStorage.removeItem('sjk-studio-admin-logged-in');
     };
 
@@ -89,6 +109,7 @@ const Admin: React.FC = () => {
     const handleEdit = (project: Project) => {
         setEditingProject(project);
         setCurrentProject({ ...project, techString: project.tech.join(', ') });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     
     const handleCancelEdit = () => {
@@ -96,7 +117,7 @@ const Admin: React.FC = () => {
         setCurrentProject({ ...emptyProject, author: 'SJK Studio', techString: '' });
     };
 
-    const handleProjectSubmit = (e: FormEvent) => {
+    const handleProjectSubmit = async (e: FormEvent) => {
         e.preventDefault();
         const projectData: Project = {
             id: editingProject ? editingProject.id : Date.now(),
@@ -105,7 +126,7 @@ const Admin: React.FC = () => {
             author: currentProject.author,
             tech: currentProject.techString.split(',').map(t => t.trim()).filter(Boolean),
             imageUrl: currentProject.imageUrl,
-            category: currentProject.category,
+            category: 'website', // Hardcode category to 'website'
             liveUrl: currentProject.liveUrl
         };
         
@@ -116,14 +137,16 @@ const Admin: React.FC = () => {
             updatedProjects = [...projects, projectData];
         }
         
-        saveProjects(updatedProjects);
-        handleCancelEdit();
+        const success = await saveProjects(updatedProjects);
+        if (success) {
+            handleCancelEdit();
+        }
     };
     
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this project?')) {
             const updatedProjects = projects.filter(p => p.id !== id);
-            saveProjects(updatedProjects);
+            await saveProjects(updatedProjects);
         }
     };
 
@@ -142,7 +165,7 @@ const Admin: React.FC = () => {
                     <button type="submit" className="px-6 py-2 bg-primary text-base-dark font-bold rounded hover:bg-opacity-80 transition-colors">
                         Login
                     </button>
-                    {error && <p className="text-red-500 mt-4">{error}</p>}
+                    {loginError && <p className="text-red-500 mt-4">{loginError}</p>}
                 </form>
             </div>
         );
@@ -170,35 +193,37 @@ const Admin: React.FC = () => {
                         <input type="text" name="liveUrl" placeholder="Live Site URL (Optional)" value={currentProject.liveUrl || ''} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     </div>
                     <input type="text" name="techString" placeholder="Tech Stack (comma-separated)" value={currentProject.techString} onChange={handleInputChange} required className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
-                    <select name="category" value={currentProject.category} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none">
-                        <option value="website">Website</option>
-                    </select>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 items-center">
                         <button type="submit" className="px-6 py-2 bg-primary text-base-dark font-bold rounded hover:bg-opacity-80 transition-colors">
                             {editingProject ? 'Update Project' : 'Add Project'}
                         </button>
                         {editingProject && <button type="button" onClick={handleCancelEdit} className="px-6 py-2 bg-gray-500 text-white font-bold rounded hover:bg-opacity-80 transition-colors">Cancel</button>}
+                        {saveError && <p className="text-red-500 text-sm">{saveError}</p>}
                     </div>
                 </form>
             </motion.div>
 
             <div>
                 <h3 className="text-3xl font-bold mb-6">Manage Projects</h3>
-                <div className="space-y-4">
-                    {projects.map(project => (
-                        <div key={project.id} className="bg-surface p-4 rounded-lg border border-primary/10 flex justify-between items-center">
-                            <div>
-                                <h4 className="font-bold text-lg">{project.title}</h4>
-                                <p className="text-sm text-text-dim">{project.category}</p>
+                {isLoading ? (
+                    <p className="text-text-dim">Loading projects...</p>
+                ) : (
+                    <div className="space-y-4">
+                        {projects.map(project => (
+                            <div key={project.id} className="bg-surface p-4 rounded-lg border border-primary/10 flex justify-between items-center flex-wrap">
+                                <div className="mb-2 sm:mb-0">
+                                    <h4 className="font-bold text-lg">{project.title}</h4>
+                                    <p className="text-sm text-text-dim capitalize">{project.category}</p>
+                                </div>
+                                <div className="space-x-2 flex-shrink-0">
+                                    <button onClick={() => handleEdit(project)} className="px-3 py-1 bg-blue-600 text-white text-sm rounded">Edit</button>
+                                    <button onClick={() => handleDelete(project.id)} className="px-3 py-1 bg-red-600 text-white text-sm rounded">Delete</button>
+                                </div>
                             </div>
-                            <div className="space-x-2">
-                                <button onClick={() => handleEdit(project)} className="px-3 py-1 bg-blue-600 text-white text-sm rounded">Edit</button>
-                                <button onClick={() => handleDelete(project.id)} className="px-3 py-1 bg-red-600 text-white text-sm rounded">Delete</button>
-                            </div>
-                        </div>
-                    ))}
-                    {projects.length === 0 && <p className="text-text-dim">No projects found. Add one above!</p>}
-                </div>
+                        ))}
+                        {projects.length === 0 && <p className="text-text-dim">No projects found. Add one above!</p>}
+                    </div>
+                )}
             </div>
         </div>
     );

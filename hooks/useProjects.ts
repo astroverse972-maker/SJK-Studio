@@ -1,40 +1,29 @@
 import { useState, useEffect } from 'react';
-import { projectsData } from '../data/projects';
 import { Project } from '../components/ProjectCard';
+import { projectsData } from '../data/projects'; // Import the local data
 
 const useProjects = (): Project[] => {
   const [projects, setProjects] = useState<Project[]>([]);
-
+  
   useEffect(() => {
-    try {
-      const localProjects = localStorage.getItem('sjk-studio-projects');
-      if (localProjects && JSON.parse(localProjects).length > 0) {
-        setProjects(JSON.parse(localProjects));
-      } else {
-        // If local storage is empty or invalid, initialize it with default data
-        localStorage.setItem('sjk-studio-projects', JSON.stringify(projectsData));
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('https://sjkstudio.vercel.app/api/projects');
+        if (!response.ok) {
+          throw new Error('Failed to fetch projects');
+        }
+        const data: Project[] = await response.json();
+        setProjects(data);
+      } catch (error) {
+        console.error("Failed to fetch projects from API:", error);
+        // --- FALLBACK LOGIC ---
+        // If the API fails, load the local data so the site doesn't look broken.
+        console.log("API fetch failed. Falling back to local project data.");
         setProjects(projectsData);
       }
-    } catch (error) {
-      console.error("Failed to parse projects from localStorage, using default data.", error);
-      setProjects(projectsData);
-    }
-
-    // This listener ensures that if projects are updated in another tab (e.g., the admin panel),
-    // the current tab will reflect those changes.
-    const handleStorageChange = () => {
-        const updatedProjects = localStorage.getItem('sjk-studio-projects');
-        if (updatedProjects) {
-            setProjects(JSON.parse(updatedProjects));
-        }
     };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-
+    
+    fetchProjects();
   }, []);
 
   return projects;
