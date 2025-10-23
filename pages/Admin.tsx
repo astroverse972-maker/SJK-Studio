@@ -4,9 +4,6 @@ import { supabase } from '../supabase/config';
 import { Project } from '../data/projects';
 import useProjects from '../hooks/useProjects';
 
-// This makes the Cloudinary widget available globally in this component
-declare var cloudinary: any;
-
 type CurrentProjectState = {
     id?: string;
     title: string;
@@ -46,20 +43,6 @@ const Admin: React.FC = () => {
         });
     
         return () => subscription.unsubscribe();
-    }, []);
-
-    const uploadWidget = React.useRef<any>(null);
-    useEffect(() => {
-        // Initialize Cloudinary Upload Widget
-        uploadWidget.current = cloudinary.createUploadWidget({
-            cloudName: 'YOUR_CLOUD_NAME', // IMPORTANT: Add your Cloudinary cloud name here
-            uploadPreset: 'YOUR_UPLOAD_PRESET' // IMPORTANT: Add your unsigned upload preset here
-        }, (error: any, result: any) => { 
-            if (!error && result && result.event === "success") { 
-                console.log('Done! Here is the image info: ', result.info);
-                setCurrentProject(prev => ({ ...prev, imageURL: result.info.secure_url }));
-            }
-        });
     }, []);
     
     const handleGitHubLogin = async () => {
@@ -108,10 +91,6 @@ const Admin: React.FC = () => {
 
     const handleProjectSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        if (!currentProject.imageURL) {
-            setSaveMessage('Please upload an image for the project.');
-            return;
-        }
         setSaveMessage('Saving...');
         
         const projectData = {
@@ -186,11 +165,22 @@ const Admin: React.FC = () => {
                     <textarea name="description" placeholder="Description" value={currentProject.description} onChange={handleInputChange} required rows={3} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none"></textarea>
                     <input type="url" name="liveUrl" placeholder="Live Site URL (e.g., https://example.com)" value={currentProject.liveUrl || ''} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     
-                    <div className="flex items-center gap-4">
-                        <button type="button" onClick={() => uploadWidget.current.open()} className="px-6 py-2 bg-gold text-base font-bold rounded hover:bg-opacity-80 transition-colors">
-                            Upload Image
-                        </button>
-                        {currentProject.imageURL && <img src={currentProject.imageURL} alt="Preview" className="w-20 h-20 object-cover rounded" />}
+                    <div>
+                        <input
+                            type="url"
+                            name="imageURL"
+                            placeholder="Image URL from Cloudinary"
+                            value={currentProject.imageURL || ''}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none"
+                        />
+                        {currentProject.imageURL && (
+                            <div className="mt-4">
+                                <p className="text-sm text-text-dim mb-2">Image Preview:</p>
+                                <img src={currentProject.imageURL} alt="Preview" className="w-32 h-32 object-cover rounded border border-primary/20" />
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex gap-4 items-center">
