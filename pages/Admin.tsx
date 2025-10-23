@@ -12,6 +12,7 @@ type CurrentProjectState = {
     title: string;
     description: string;
     imageURL: string;
+    liveUrl?: string;
 };
 
 const GitHubIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -29,10 +30,11 @@ const Admin: React.FC = () => {
     const [saveMessage, setSaveMessage] = useState<string>('');
     const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-    const emptyProject = {
+    const emptyProject: CurrentProjectState = {
         title: '',
         description: '',
         imageURL: '',
+        liveUrl: '',
     };
 
     const [currentProject, setCurrentProject] = useState<CurrentProjectState>(emptyProject);
@@ -93,7 +95,8 @@ const Admin: React.FC = () => {
             id: project.id,
             title: project.title,
             description: project.description,
-            imageURL: project.imageURL
+            imageURL: project.imageURL,
+            liveUrl: project.liveUrl || ''
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -115,6 +118,7 @@ const Admin: React.FC = () => {
             title: currentProject.title,
             description: currentProject.description,
             imageURL: currentProject.imageURL,
+            liveUrl: currentProject.liveUrl,
         };
         
         try {
@@ -180,6 +184,7 @@ const Admin: React.FC = () => {
                 <form onSubmit={handleProjectSubmit} className="space-y-4">
                     <input type="text" name="title" placeholder="Title" value={currentProject.title} onChange={handleInputChange} required className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     <textarea name="description" placeholder="Description" value={currentProject.description} onChange={handleInputChange} required rows={3} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none"></textarea>
+                    <input type="url" name="liveUrl" placeholder="Live Site URL (e.g., https://example.com)" value={currentProject.liveUrl || ''} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     
                     <div className="flex items-center gap-4">
                         <button type="button" onClick={() => uploadWidget.current.open()} className="px-6 py-2 bg-gold text-base font-bold rounded hover:bg-opacity-80 transition-colors">
