@@ -62,8 +62,15 @@ const Admin: React.FC = () => {
     
     const handleGitHubLogin = async () => {
         setLoginError('');
+        // Construct the redirectTo URL to point specifically to the admin page.
+        // This ensures that after a successful login, the user is returned here.
+        const redirectTo = `${window.location.origin}${window.location.pathname}#/admin`;
+        
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
+            options: {
+                redirectTo,
+            },
         });
         if (error) {
             console.error('GitHub login error:', error.message);
