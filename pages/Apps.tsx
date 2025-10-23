@@ -14,7 +14,8 @@ const containerVariants = {
 };
 
 const Apps: React.FC = () => {
-  const allProjects = useProjects();
+  // FIX: Destructure the `projects` property from the object returned by `useProjects`.
+  const { projects: allProjects } = useProjects();
   const apps = allProjects.filter(p => p.category === 'app');
 
   return (

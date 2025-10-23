@@ -1,10 +1,8 @@
 import React, { useRef } from 'react';
-// FIX: Import `Variants` for explicit typing.
 import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
+import { Project } from '../data/projects'; // Import the central Project type
 
-// FIX: Added `Variants` type to ensure correct contextual typing for the `ease` property,
-// which resolves the error where an array literal was inferred as `number[]` instead of a tuple.
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
   visible: {
@@ -13,27 +11,16 @@ const itemVariants: Variants = {
     scale: 1,
     transition: {
       duration: 0.5,
-      ease: [0.4, 0.0, 0.2, 1], // Professional deceleration easing curve
+      ease: [0.4, 0.0, 0.2, 1],
     },
   },
-};
-
-export type Project = {
-    id: number;
-    title: string;
-    description: string;
-    tech: string[];
-    imageUrl: string;
-    category: string;
-    author: string;
-    liveUrl?: string;
 };
 
 type ProjectCardProps = Project & {
     priority?: boolean;
 };
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, imageUrl, author, liveUrl, priority = false }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageURL, tech, author, liveUrl, priority = false }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const mouseX = useMotionValue(0);
@@ -76,7 +63,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, ima
     >
       <div className="relative">
         <img
-            src={imageUrl}
+            src={imageURL}
             alt={title}
             className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
             loading={priority ? 'eager' : 'lazy'}
@@ -91,12 +78,14 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, ima
                 ),
             }}
         />
-        <motion.span 
-            className="absolute top-2 right-2 bg-secondary/80 text-white text-xs font-bold px-2 py-1 rounded-full"
-            style={{ transform: 'translateZ(60px)'}}
-        >
-            {author}
-        </motion.span>
+        {author && (
+          <motion.span 
+              className="absolute top-2 right-2 bg-secondary/80 text-white text-xs font-bold px-2 py-1 rounded-full"
+              style={{ transform: 'translateZ(60px)'}}
+          >
+              {author}
+          </span >
+        )}
       </div>
       <div className="p-6 relative z-10 flex-grow flex flex-col">
         <motion.h3 
@@ -111,16 +100,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, ima
         >
           {description}
         </motion.p>
-        <motion.div 
-          className="flex flex-wrap gap-2 mt-auto"
-          style={{ transform: 'translateZ(30px)'}}
-        >
-          {tech.map((t) => (
-            <span key={t} className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
-              {t}
-            </span>
-          ))}
-        </motion.div>
+        {tech && tech.length > 0 && (
+          <motion.div 
+            className="flex flex-wrap gap-2 mt-auto"
+            style={{ transform: 'translateZ(30px)'}}
+          >
+            {tech.map((t) => (
+              <span key={t} className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
+                {t}
+              </span>
+            ))}
+          </motion.div>
+        )}
         {liveUrl && (
           <motion.div
             className="mt-6"
@@ -131,7 +122,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, tech, ima
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-bold text-gold bg-transparent border-2 border-gold rounded-md transition-all duration-300 ease-out hover:bg-gold hover:text-base hover:shadow-glow-gold"
-              onClick={(e) => e.stopPropagation()} // Prevents the card's tilt from resetting on click
+              onClick={(e) => e.stopPropagation()}
             >
               View Live Site
               <ExternalLink className="ml-2 h-4 w-4" />

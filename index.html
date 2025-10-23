@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF--8" />
+    <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SJK Studio Portfolio</title>
@@ -9,10 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="preload" href="https://res.cloudinary.com/dubg7bfmv/image/upload/w_800,q_auto,f_auto/v1761039343/3-3_qfp2lk.jpg" as="image">
-    <link rel="preload" href="https://picsum.photos/seed/alpha/600/400" as="image">
-    <link rel="preload" href="https://picsum.photos/seed/beta/600/400" as="image">
-    <link rel="preload" href="https://picsum.photos/seed/epsilon/600/400" as="image">
     <script>
       tailwind.config = {
         theme: {
@@ -76,7 +72,8 @@
     "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.4",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.546.0",
     "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24",
-    "@netlify/functions": "https://aistudiocdn.com/@netlify/functions@^5.0.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.45.0",
+    "@netlify/functions": "https://aistudiocdn.com/@netlify/functions@^5.0.1",
     "@vercel/kv": "https://aistudiocdn.com/@vercel/kv@^3.0.0"
   }
 }
@@ -84,6 +81,7 @@
 </head>
   <body>
     <div id="root"></div>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
