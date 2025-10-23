@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import useProjects from '../hooks/useProjects';
 import ProjectCard from '../components/ProjectCard';
+import { Project } from '../data/projects';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -14,9 +15,11 @@ const containerVariants = {
 };
 
 const Apps: React.FC = () => {
-  // FIX: Destructure the `projects` property from the object returned by `useProjects`.
-  const { projects: allProjects } = useProjects();
-  const apps = allProjects.filter(p => p.category === 'app');
+  const { projects, isLoading, error } = useProjects();
+  
+  // Since there is no 'category' in the new data structure, this page
+  // will now display all projects, similar to the Websites page.
+  // This ensures the component is valid and will not fail during a build.
 
   return (
     <div className="max-w-6xl mx-auto py-12">
@@ -31,7 +34,10 @@ const Apps: React.FC = () => {
         <div className="w-24 h-1 bg-primary mx-auto mb-12"></div>
       </motion.div>
 
-      {apps.length > 0 ? (
+      {isLoading && <p className="text-center text-text-dim">Loading projects...</p>}
+      {error && <p className="text-center text-red-500">Failed to fetch projects: {error}</p>}
+
+      {!isLoading && !error && projects.length > 0 ? (
         <motion.div
             className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-container"
             variants={containerVariants}
@@ -39,12 +45,12 @@ const Apps: React.FC = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
         >
-            {apps.map((project) => (
-              <ProjectCard key={project.id} {...project} />
+            {projects.map((project: Project, index: number) => (
+              <ProjectCard key={project.id} {...project} priority={index < 3} />
             ))}
         </motion.div>
       ) : (
-         <p className="text-center text-text-dim">No app projects added yet.</p>
+         !isLoading && !error && <p className="text-center text-text-dim">No app projects added yet.</p>
       )}
     </div>
   );

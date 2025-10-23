@@ -84,7 +84,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageURL,
               style={{ transform: 'translateZ(60px)'}}
           >
               {author}
-          </span >
+          </motion.span>
         )}
       </div>
       <div className="p-6 relative z-10 flex-grow flex flex-col">
