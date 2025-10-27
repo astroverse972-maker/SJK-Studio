@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useTransform, useSpring, Variants } from 'framer-motion';
+import React from 'react';
+import { motion, Variants } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
-import { Project } from '../data/projects'; // Import the central Project type
+import { Project } from '../data/projects';
 
+// This variant is for the initial page load animation (staggering cards in)
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20, scale: 0.95 },
   visible: {
@@ -21,114 +22,64 @@ type ProjectCardProps = Project & {
 };
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageURL, tech, author, liveUrl, priority = false }) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  
-  const springConfig = { stiffness: 200, damping: 25, mass: 0.1 };
-
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig);
-  const glareX = useTransform(mouseX, [-0.5, 0.5], [100, -100]);
-  const glareY = useTransform(mouseY, [-0.5, 0.5], [100, -100]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const xPct = (e.clientX - rect.left) / rect.width - 0.5;
-    const yPct = (e.clientY - rect.top) / rect.height - 0.5;
-    mouseX.set(xPct);
-    mouseY.set(yPct);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   return (
+    // We keep this motion.div for the initial stagger animation of the grid.
     <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       variants={itemVariants}
-      className="group relative bg-surface rounded-lg overflow-hidden border border-primary/20 transition-all duration-300 hover:shadow-glow-gold flex flex-col"
-      whileHover={{ y: -10, scale: 1.03 }}
-      style={{
-        transformStyle: 'preserve-3d',
-        rotateX,
-        rotateY,
-      }}
+      className="group relative bg-surface rounded-lg overflow-hidden border border-primary/20 transition-all duration-300 ease-in-out hover:shadow-glow-gold hover:-translate-y-2 flex flex-col"
     >
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <img
             src={imageURL}
             alt={title}
-            className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-48 object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
             loading={priority ? 'eager' : 'lazy'}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <motion.div
-            className="absolute inset-0 transition-opacity duration-300 opacity-0 group-hover:opacity-10"
-            style={{
-                background: useTransform(
-                  [glareX, glareY],
-                  ([x, y]) => `radial-gradient(circle at ${x}% ${y}%, rgba(255, 255, 255, 0.4), transparent)`
-                ),
-            }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
         {author && (
-          <motion.span 
+          <span 
               className="absolute top-2 right-2 bg-secondary/80 text-white text-xs font-bold px-2 py-1 rounded-full"
-              style={{ transform: 'translateZ(60px)'}}
           >
               {author}
-          </motion.span>
+          </span>
         )}
       </div>
       <div className="p-6 relative z-10 flex-grow flex flex-col">
-        <motion.h3 
-          className="text-2xl font-sans font-bold text-primary mb-2"
-          style={{ transform: 'translateZ(50px)'}}
-        >
+        <h3 className="text-2xl font-sans font-bold text-primary mb-2">
           {title}
-        </motion.h3>
-        <motion.p 
-          className="text-text-dim mb-4 flex-grow"
-          style={{ transform: 'translateZ(40px)'}}
-        >
+        </h3>
+        
+        {/* The description is now always visible */}
+        <p className="text-text-dim mb-4 flex-grow">
           {description}
-        </motion.p>
-        {tech && tech.length > 0 && (
-          <motion.div 
-            className="flex flex-wrap gap-2 mt-auto"
-            style={{ transform: 'translateZ(30px)'}}
-          >
-            {tech.map((t) => (
-              <span key={t} className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
-                {t}
-              </span>
-            ))}
-          </motion.div>
-        )}
-        {liveUrl && (
-          <motion.div
-            className="mt-6"
-            style={{ transform: 'translateZ(20px)'}}
-          >
-            <a
-              href={liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-bold text-gold bg-transparent border-2 border-gold rounded-md transition-all duration-300 ease-out hover:bg-gold hover:text-base hover:shadow-glow-gold"
-              onClick={(e) => e.stopPropagation()}
-            >
-              View Live Site
-              <ExternalLink className="ml-2 h-4 w-4" />
-            </a>
-          </motion.div>
-        )}
+        </p>
+        
+        {/* The tech stack and link are also always visible */}
+        <div>
+            {tech && tech.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-auto mb-6">
+                    {tech.map((t) => (
+                    <span key={t} className="px-2.5 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
+                        {t}
+                    </span>
+                    ))}
+                </div>
+            )}
+            {liveUrl && (
+                <div>
+                    <a
+                    href={liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-bold text-gold bg-transparent border-2 border-gold rounded-md transition-all duration-300 ease-out hover:bg-gold hover:text-base hover:shadow-glow-gold"
+                    onClick={(e) => e.stopPropagation()}
+                    >
+                    View Live Site
+                    <ExternalLink className="ml-2 h-4 w-4" />
+                    </a>
+                </div>
+            )}
+        </div>
       </div>
     </motion.div>
   );

@@ -6,17 +6,25 @@ const AuthCallback: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // The Supabase client library automatically handles the session from the URL hash.
-        // We just need to wait for the user session to be established and then redirect.
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                // Once signed in, redirect to the admin page.
+        // Proactively check for a session as soon as the component loads.
+        // This handles cases where the session is established before the listener is attached.
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
                 navigate('/admin', { replace: true });
             }
         });
 
+        // Also set up a listener as a reliable fallback. The `SIGNED_IN` event
+        // will fire once the session is established from the URL hash.
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session) {
+                // Once we have a session, we can redirect.
+                navigate('/admin', { replace: true });
+            }
+        });
+
+        // The cleanup function will run when the component unmounts to prevent memory leaks.
         return () => {
-            // Cleanup subscription on unmount
             subscription.unsubscribe();
         };
     }, [navigate]);
