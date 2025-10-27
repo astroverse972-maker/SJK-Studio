@@ -24,7 +24,7 @@ const Admin: React.FC = () => {
     const [loginError, setLoginError] = useState<string>('');
     
     const { projects, addProject, updateProject, deleteProject, isLoading: projectsLoading, error: projectsError } = useProjects();
-    const [saveMessage, setSaveMessage] = useState<string>('');
+    const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
 
     const emptyProject: CurrentProjectState = {
@@ -47,9 +47,7 @@ const Admin: React.FC = () => {
     
     const handleGitHubLogin = async () => {
         setLoginError('');
-        // Construct the redirectTo URL to point specifically to the admin page.
-        // This ensures that after a successful login, the user is returned here.
-        const redirectTo = `${window.location.origin}${window.location.pathname}#/admin`;
+        const redirectTo = `${window.location.origin}${window.location.pathname}#/auth-callback`;
         
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
@@ -91,7 +89,7 @@ const Admin: React.FC = () => {
 
     const handleProjectSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        setSaveMessage('Saving...');
+        setStatusMessage(null);
         
         const projectData = {
             title: currentProject.title,
@@ -106,12 +104,13 @@ const Admin: React.FC = () => {
             } else {
                 await addProject(projectData);
             }
-            setSaveMessage('Project saved successfully!');
+            setStatusMessage({ type: 'success', text: 'Project saved successfully!' });
             handleCancelEdit();
-            setTimeout(() => setSaveMessage(''), 3000);
-        } catch (error) {
+            setTimeout(() => setStatusMessage(null), 4000);
+        } catch (error: any) {
             console.error("Error saving project:", error);
-            setSaveMessage('Failed to save project.');
+            const errorMessage = error.message || 'An unknown error occurred.';
+            setStatusMessage({ type: 'error', text: `Error: ${errorMessage}` });
         }
     };
     
@@ -119,11 +118,12 @@ const Admin: React.FC = () => {
         if (window.confirm('Are you sure you want to delete this project?')) {
             try {
                 await deleteProject(id);
-                setSaveMessage('Project deleted.');
-                setTimeout(() => setSaveMessage(''), 3000);
-            } catch (error) {
+                setStatusMessage({ type: 'success', text: 'Project deleted.' });
+                setTimeout(() => setStatusMessage(null), 3000);
+            } catch (error: any) {
                 console.error("Error deleting project:", error);
-                setSaveMessage('Failed to delete project.');
+                const errorMessage = error.message || 'An unknown error occurred.';
+                setStatusMessage({ type: 'error', text: `Failed to delete: ${errorMessage}` });
             }
         }
     };
@@ -188,7 +188,11 @@ const Admin: React.FC = () => {
                             {editingProject ? 'Update Project' : 'Add Project'}
                         </button>
                         {editingProject && <button type="button" onClick={handleCancelEdit} className="px-6 py-2 bg-gray-500 text-white font-bold rounded hover:bg-opacity-80 transition-colors">Cancel</button>}
-                        {saveMessage && <p className="text-green-500 text-sm">{saveMessage}</p>}
+                        {statusMessage && (
+                            <p className={`text-sm ${statusMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                                {statusMessage.text}
+                            </p>
+                        )}
                     </div>
                 </form>
             </motion.div>
