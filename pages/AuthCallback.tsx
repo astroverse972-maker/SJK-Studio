@@ -1,32 +1,61 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase/config';
 
 const AuthCallback: React.FC = () => {
     const navigate = useNavigate();
+    // Use a ref to prevent this effect from running twice in React's StrictMode
+    const hasRun = useRef(false);
 
     useEffect(() => {
-        // Proactively check for a session as soon as the component loads.
-        // This handles cases where the session is established before the listener is attached.
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                navigate('/admin', { replace: true });
-            }
-        });
+        if (hasRun.current) return;
+        hasRun.current = true;
 
-        // Also set up a listener as a reliable fallback. The `SIGNED_IN` event
-        // will fire once the session is established from the URL hash.
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (session) {
-                // Once we have a session, we can redirect.
-                navigate('/admin', { replace: true });
-            }
-        });
+        const handleAuth = async () => {
+            // The URL hash from Supabase + HashRouter looks like: #/auth-callback#access_token=...
+            const hash = window.location.hash;
+            const secondHashIndex = hash.lastIndexOf('#');
 
-        // The cleanup function will run when the component unmounts to prevent memory leaks.
-        return () => {
-            subscription.unsubscribe();
+            // Check if we have the Supabase token part in the hash after the router's hash
+            if (secondHashIndex > 0) {
+                const paramsStr = hash.substring(secondHashIndex + 1);
+                const params = new URLSearchParams(paramsStr);
+                const accessToken = params.get('access_token');
+                const refreshToken = params.get('refresh_token');
+
+                if (accessToken && refreshToken) {
+                    // Manually set the session with the tokens parsed from the URL
+                    const { error } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken,
+                    });
+
+                    if (!error) {
+                        // If session is set successfully, we are logged in. Redirect to admin.
+                        navigate('/admin', { replace: true });
+                        return; // Exit the function to avoid running the fallback.
+                    } else {
+                        console.error('Error setting session manually:', error);
+                        // If manual setting fails, we can let it fall through to the listener.
+                    }
+                }
+            }
+            
+            // Fallback listener for other auth flows or if manual parsing fails.
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+                if (session) {
+                    subscription.unsubscribe();
+                    navigate('/admin', { replace: true });
+                }
+            });
+
+            return () => {
+                subscription?.unsubscribe();
+            };
         };
+
+        handleAuth();
+        
     }, [navigate]);
 
     return (
