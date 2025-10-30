@@ -19,7 +19,7 @@ const Spotlight: React.FC = () => {
     <div
       className="pointer-events-none fixed inset-0 z-30 transition duration-300"
       style={{
-        background: `radial-gradient(600px at ${position.x}px ${position.y}px, rgba(255, 190, 0, 0.08), transparent 80%)`,
+        background: `radial-gradient(600px at ${position.x}px ${position.y}px, rgba(212, 165, 116, 0.15), transparent 80%)`,
       }}
     />
   );

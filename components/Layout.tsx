@@ -25,7 +25,7 @@ const Layout: React.FC = () => {
       <ParticleBackground />
       <div className="relative z-10 flex-grow bg-transparent text-text-main font-sans">
         <Header />
-        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

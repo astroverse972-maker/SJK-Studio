@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Send, CheckCircle, Linkedin } from 'lucide-react';
+import AnimatedText from '../components/AnimatedText';
 
 const fadeIn = (direction = 'up', delay = 0): Variants => ({
     hidden: { 
@@ -57,10 +58,10 @@ const Contact: React.FC = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto py-12">
+        <div className="max-w-3xl mx-auto">
             <motion.div initial="hidden" animate="visible" variants={fadeIn('down')}>
                 <h2 className="text-4xl font-sans font-bold text-center mb-4">
-                    CONTACT <span className="text-primary">ME</span>
+                    <AnimatedText text="LET'S BUILD SOMETHING AMAZING" el="span" />
                 </h2>
                 <div className="w-24 h-1 bg-primary mx-auto mb-12"></div>
             </motion.div>
@@ -70,7 +71,7 @@ const Contact: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
-                className="bg-surface p-8 rounded-lg border border-primary/20 shadow-lg"
+                className="bg-surface p-8 rounded-2xl border border-primary/20 shadow-lg backdrop-blur-xl"
             >
                 {isSubmitted ? (
                     <motion.div
@@ -80,7 +81,7 @@ const Contact: React.FC = () => {
                     >
                         <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
                         <h3 className="text-2xl font-bold mt-4 text-primary">Thank You!</h3>
-                        <p className="text-text-dim mt-2">Your message has been sent successfully. I'll get back to you soon.</p>
+                        <p className="text-text-dim mt-2">Your message has been sent successfully. I typically respond within 24 hours.</p>
                     </motion.div>
                 ) : (
                     <form name="contact" method="POST" data-netlify="true" onSubmit={handleSubmit} data-netlify-honeypot="bot-field">
@@ -100,7 +101,7 @@ const Contact: React.FC = () => {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
-                                    className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                                    className="w-full bg-base/80 p-3 rounded-md border border-white/20 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                     placeholder="Your Name"
                                 />
                             </motion.div>
@@ -113,7 +114,7 @@ const Contact: React.FC = () => {
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     required
-                                    className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                                    className="w-full bg-base/80 p-3 rounded-md border border-white/20 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                     placeholder="Your Email"
                                 />
                             </motion.div>
@@ -126,7 +127,7 @@ const Contact: React.FC = () => {
                                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                     required
                                     rows={5}
-                                    className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
+                                    className="w-full bg-base/80 p-3 rounded-md border border-white/20 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none transition-all"
                                     placeholder="Your Message"
                                 ></textarea>
                             </motion.div>
@@ -134,7 +135,7 @@ const Contact: React.FC = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="inline-flex items-center justify-center px-8 py-3 text-lg font-bold text-base bg-primary border-2 border-primary rounded-md transition-all duration-300 ease-out hover:bg-opacity-80 disabled:bg-opacity-50 disabled:cursor-not-allowed"
+                                    className="inline-flex items-center justify-center px-8 py-3 text-lg font-bold text-base bg-gradient-to-r from-primary to-yellow-600 rounded-md transition-all duration-300 ease-out hover:bg-opacity-80 disabled:bg-opacity-50 disabled:cursor-not-allowed hover:shadow-glow-gold animate-pulse-glow"
                                 >
                                     {isSubmitting ? 'Sending...' : 'Send Message'}
                                     {!isSubmitting && <Send className="ml-2 h-5 w-5" />}

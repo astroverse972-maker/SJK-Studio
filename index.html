@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -17,27 +17,28 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              'base': '#1c1917',
-              'primary': '#d6d3d1',
-              'secondary': '#b45309',
-              'gold': '#FFBE00',
-              'surface': '#292524',
-              'text-main': '#fafaf9',
-              'text-dim': '#a8a29e',
+              'base': '#1A1A1A',
+              'primary': '#D4A574', // Gold
+              'secondary': '#8B7355', // Brown
+              'accent-blue': '#3B82F6',
+              'accent-cyan': '#06B6D4',
+              'surface': 'rgba(255, 255, 255, 0.03)',
+              'text-main': '#F8F9FA',
+              'text-dim': '#E2E8F0',
             },
             boxShadow: {
-              'glow-primary': '0 0 8px #d6d3d1, 0 0 16px #d6d3d1',
-              'glow-secondary': '0 0 8px #b45309, 0 0 16px #b45309',
-              'glow-gold': '0 0 15px 4px rgba(255, 190, 0, 0.3)',
-            }
+              'glow-gold': '0 0 25px 5px rgba(212, 165, 116, 0.3)',
+              'glow-gold-lg': '0 8px 32px rgba(212, 165, 116, 0.5)',
+            },
           },
         },
       }
     </script>
     <style>
       body {
-        background-color: #1c1917;
-        color: #fafaf9;
+        background-color: #1A2332;
+        background-image: linear-gradient(180deg, #2C2416 0%, #3D2C47 50%, #1A2332 100%);
+        color: #F8F9FA;
         overflow-x: hidden;
       }
       .perspective-container {
@@ -50,18 +51,63 @@
         width: 100%;
         height: 100%;
         z-index: -1;
+        opacity: 0.5;
       }
-      @keyframes marquee {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
+      .gradient-text {
+        background: linear-gradient(135deg, #F5B041, #D4A574);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
       }
-      .slider-track {
-        animation: marquee 25s linear infinite;
-        will-change: transform;
+      .holographic-gold {
+        background: linear-gradient(135deg, #D4A574 0%, #F5B041 25%, #06B6D4 50%, #C8985E 75%, #D4A574 100%);
+        background-size: 200% 200%;
+        animation: shimmer 4s ease-in-out infinite;
       }
-      .slider-container:hover .slider-track {
-        animation-play-state: paused;
+      
+      /* Slider Fade Effect */
+      .fade-edges::before,
+      .fade-edges::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 6rem; /* 96px */
+        z-index: 2;
+        pointer-events: none;
       }
+      .fade-edges::before {
+        left: 0;
+        background: linear-gradient(to right, #1A1A1A, transparent);
+      }
+      .fade-edges::after {
+        right: 0;
+        background: linear-gradient(to left, #1A1A1A, transparent);
+      }
+
+      /* Animations */
+      @keyframes slow-spin {
+        from { transform: rotateY(0deg); }
+        to { transform: rotateY(360deg); }
+      }
+      @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+      }
+      @keyframes shimmer {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+      }
+      @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(212, 165, 116, 0.2); }
+        50% { box-shadow: 0 0 35px 5px rgba(212, 165, 116, 0.4); }
+      }
+
+      .animate-slow-spin { animation: slow-spin 30s linear infinite; }
+      .animate-float { animation: float 6s ease-in-out infinite; }
+      .animate-pulse-glow { animation: pulse-glow 3s infinite ease-in-out; }
+
     </style>
   <script type="importmap">
 {
