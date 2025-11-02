@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import useProjects from '../hooks/useProjects';
 import ProjectCard from '../components/ProjectCard';
 import { Project } from '../data/projects';
 import AnimatedText from '../components/AnimatedText';
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4 } },
-  exit: { opacity: 0, y: -20, scale: 0.95, transition: { duration: 0.3 } },
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } },
+  exit: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
 };
 
 const Websites: React.FC = () => {
@@ -61,19 +71,19 @@ const Websites: React.FC = () => {
       {!isLoading && !error && projects.length > 0 ? (
         <motion.div
           layout
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <AnimatePresence>
             {filteredProjects.map((project: Project, index: number) => (
               <motion.div
                 key={project.id}
-                layout
                 variants={cardVariants}
-                initial="hidden"
-                animate="visible"
                 exit="exit"
               >
-                <ProjectCard {...project} priority={index < 3} />
+                <ProjectCard {...project} priority={index < 3} disableAnimation />
               </motion.div>
             ))}
           </AnimatePresence>

@@ -18,12 +18,13 @@ const itemVariants: Variants = {
 
 type ProjectCardProps = Project & {
     priority?: boolean;
+    disableAnimation?: boolean;
 };
 
-const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageURL, liveUrl, priority = false }) => {
+const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, imageURL, liveUrl, priority = false, disableAnimation = false }) => {
   return (
     <motion.div
-      variants={itemVariants}
+      variants={!disableAnimation ? itemVariants : undefined}
       whileHover={{ y: -10, boxShadow: '0 20px 60px rgba(212, 165, 116, 0.3)' }}
       transition={{ type: 'spring', stiffness: 300, damping: 15 }}
       className="group bg-surface rounded-2xl overflow-hidden border border-primary/20 flex flex-col backdrop-blur-2xl"
