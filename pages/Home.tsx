@@ -26,7 +26,7 @@ const DeconstructedUIElement = () => {
     const [orbitRadius, setOrbitRadius] = useState(150);
     const heroRef = useRef<HTMLDivElement>(null);
 
-    // For mouse tilt
+    // For mouse tilt & gyroscope
     const mouseX = useMotionValue(0.5);
     const mouseY = useMotionValue(0.5);
     
@@ -38,6 +38,8 @@ const DeconstructedUIElement = () => {
     const springDragY = useSpring(dragY, springConfig);
 
     useEffect(() => {
+        const isTouchDevice = 'ontouchstart' in window;
+
         const handleMouseMove = (e: MouseEvent) => {
           if (heroRef.current) {
             const { left, top, width, height } = heroRef.current.getBoundingClientRect();
@@ -45,7 +47,26 @@ const DeconstructedUIElement = () => {
             mouseY.set( (e.clientY - top) / height );
           }
         };
-        window.addEventListener('mousemove', handleMouseMove);
+
+        const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+            const { beta, gamma } = event; // beta: [-180, 180], gamma: [-90, 90]
+            if (beta === null || gamma === null) return;
+
+            const clampedBeta = Math.max(-30, Math.min(30, beta));
+            const clampedGamma = Math.max(-30, Math.min(30, gamma));
+
+            const normalizedY = (clampedBeta + 30) / 60;
+            const normalizedX = (clampedGamma + 30) / 60;
+
+            mouseX.set(normalizedX);
+            mouseY.set(normalizedY);
+        };
+
+        if (isTouchDevice) {
+            window.addEventListener('deviceorientation', handleDeviceOrientation);
+        } else {
+            window.addEventListener('mousemove', handleMouseMove);
+        }
         
         const updateRadius = () => {
             if (window.innerWidth < 768) setOrbitRadius(90);
@@ -57,6 +78,7 @@ const DeconstructedUIElement = () => {
         
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('deviceorientation', handleDeviceOrientation);
             window.removeEventListener('resize', updateRadius);
         }
     }, [mouseX, mouseY]);
@@ -64,7 +86,6 @@ const DeconstructedUIElement = () => {
     const rotateX = useTransform(mouseY, [0, 1], [-20, 20]);
     const rotateY = useTransform(mouseX, [0, 1], [20, -20]);
 
-    // Combine mouse tilt and touch drag rotations
     const combinedRotateX = useTransform(() => rotateX.get() + springDragY.get());
     const combinedRotateY = useTransform(() => rotateY.get() + springDragX.get());
     
@@ -91,15 +112,12 @@ const DeconstructedUIElement = () => {
             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
             dragElastic={0.2}
             onDrag={(event, info) => {
-                // We're updating the drag motion values directly for the spring
                 dragX.set(info.offset.x);
                 dragY.set(info.offset.y);
-                // Reset mouse tilt values during drag to prevent conflict
                 mouseX.set(0.5);
                 mouseY.set(0.5);
             }}
             onDragEnd={() => {
-                // Snap back to neutral drag position
                 dragX.set(0);
                 dragY.set(0);
             }}

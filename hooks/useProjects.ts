@@ -36,6 +36,7 @@ const useProjects = (): UseProjectsReturn => {
         description: item.description,
         imageURL: item.imageURL,
         liveUrl: item.liveUrl,
+        category: item.category,
       }));
       setProjects(formattedProjects);
     }

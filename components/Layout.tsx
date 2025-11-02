@@ -5,6 +5,7 @@ import Header from './Header';
 import ParticleBackground from './ParticleBackground';
 import Spotlight from './Spotlight';
 import Footer from './Footer';
+import ScrollIndicator from './ScrollIndicator';
 
 const pageVariants: Variants = {
   initial: { opacity: 0 },
@@ -39,6 +40,7 @@ const Layout: React.FC = () => {
           </AnimatePresence>
         </main>
       </div>
+      <ScrollIndicator />
       <Footer />
     </div>
   );

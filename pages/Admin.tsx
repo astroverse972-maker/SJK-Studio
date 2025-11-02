@@ -9,6 +9,7 @@ type CurrentProjectState = {
     title: string;
     description: string;
     imageURL: string;
+    category: string;
     liveUrl?: string;
 };
 
@@ -26,11 +27,13 @@ const Admin: React.FC = () => {
     const { projects, addProject, updateProject, deleteProject, isLoading: projectsLoading, error: projectsError } = useProjects();
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
+    const [categoryFilter, setCategoryFilter] = useState('All');
 
     const emptyProject: CurrentProjectState = {
         title: '',
         description: '',
         imageURL: '',
+        category: '',
         liveUrl: '',
     };
 
@@ -77,6 +80,7 @@ const Admin: React.FC = () => {
             title: project.title,
             description: project.description,
             imageURL: project.imageURL,
+            category: project.category,
             liveUrl: project.liveUrl || ''
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -95,6 +99,7 @@ const Admin: React.FC = () => {
             title: currentProject.title,
             description: currentProject.description,
             imageURL: currentProject.imageURL,
+            category: currentProject.category,
             liveUrl: currentProject.liveUrl,
         };
         
@@ -127,6 +132,9 @@ const Admin: React.FC = () => {
             }
         }
     };
+
+    const categories = ['All', ...Array.from(new Set(projects.map(p => p.category).filter(Boolean)))];
+    const filteredProjects = projects.filter(p => categoryFilter === 'All' || p.category === categoryFilter);
 
     if (authLoading) {
         return <div className="text-center py-12">Authenticating...</div>
@@ -163,6 +171,7 @@ const Admin: React.FC = () => {
                 <form onSubmit={handleProjectSubmit} className="space-y-4">
                     <input type="text" name="title" placeholder="Title" value={currentProject.title} onChange={handleInputChange} required className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     <textarea name="description" placeholder="Description" value={currentProject.description} onChange={handleInputChange} required rows={3} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none"></textarea>
+                    <input type="text" name="category" placeholder="Category (e.g., Barbershop, Restaurant)" value={currentProject.category} onChange={handleInputChange} required className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     <input type="url" name="liveUrl" placeholder="Live Site URL (e.g., https://example.com)" value={currentProject.liveUrl || ''} onChange={handleInputChange} className="w-full bg-base p-3 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none" />
                     
                     <div>
@@ -198,10 +207,26 @@ const Admin: React.FC = () => {
             </motion.div>
 
             <div>
-                <h3 className="text-3xl font-bold mb-6">Manage Projects</h3>
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-3xl font-bold">Manage Projects</h3>
+                    {categories.length > 1 && (
+                        <div>
+                            <label htmlFor="category-filter" className="sr-only">Filter by category</label>
+                            <select
+                                id="category-filter"
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                className="bg-base p-2 rounded border border-text-dim/30 focus:border-primary focus:ring-2 focus:ring-primary/50 outline-none"
+                            >
+                                {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                            </select>
+                        </div>
+                    )}
+                </div>
+
                 {projectsLoading ? <p>Loading projects...</p> : projectsError ? <p className="text-red-500">Error: {projectsError}</p> : (
                     <div className="space-y-4">
-                        {projects.map(project => (
+                        {filteredProjects.map(project => (
                             <div key={project.id} className="bg-surface p-4 rounded-lg border border-primary/10 flex justify-between items-center flex-wrap">
                                 <div className="mb-2 sm:mb-0">
                                     <h4 className="font-bold text-lg">{project.title}</h4>
@@ -213,6 +238,7 @@ const Admin: React.FC = () => {
                                 </div>
                             </div>
                         ))}
+                        {filteredProjects.length === 0 && projects.length > 0 && <p className="text-center text-text-dim">No projects match the selected category.</p>}
                         {projects.length === 0 && <p className="text-center text-text-dim">No projects have been added yet.</p>}
                     </div>
                 )}

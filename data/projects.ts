@@ -5,10 +5,10 @@ export type Project = {
   title: string;
   description: string;
   imageURL: string; // Renamed from imageUrl
+  category: string;
   // Optional fields to maintain design compatibility without breaking components
   tech?: string[];
   author?: string;
-  category?: string;
   liveUrl?: string;
 };
 
