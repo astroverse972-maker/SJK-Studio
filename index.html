@@ -66,26 +66,6 @@
         animation: shimmer 4s ease-in-out infinite;
       }
       
-      /* Slider Fade Effect */
-      .fade-edges::before,
-      .fade-edges::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 6rem; /* 96px */
-        z-index: 2;
-        pointer-events: none;
-      }
-      .fade-edges::before {
-        left: 0;
-        background: linear-gradient(to right, #1A1A1A, transparent);
-      }
-      .fade-edges::after {
-        right: 0;
-        background: linear-gradient(to left, #1A1A1A, transparent);
-      }
-
       /* Animations */
       @keyframes slow-spin {
         from { transform: rotateY(0deg); }

@@ -8,31 +8,30 @@ const ScrollIndicator: React.FC = () => {
 
   useEffect(() => {
     const updateVisibility = () => {
+      // Check if the page content is taller than the viewport
       const isContentScrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
+      // Check if the user has scrolled down past a small threshold
       const hasUserScrolled = window.scrollY > 50;
       
+      // The indicator should only be visible if the page IS scrollable AND the user has NOT scrolled yet.
       setIsVisible(isContentScrollable && !hasUserScrolled);
     };
 
     // Use a ResizeObserver to detect when content size changes (e.g., images/data loading)
     const observer = new ResizeObserver(updateVisibility);
-    // Observing the root element is more reliable for overall page size changes.
-    const rootElement = document.getElementById('root');
-
-    if (rootElement) {
-        observer.observe(rootElement);
-    }
+    // Observing the document body is more reliable for detecting overall page height changes.
+    observer.observe(document.body);
     
+    // Listen for scroll events to hide the indicator
     window.addEventListener('scroll', updateVisibility, { passive: true });
     
-    // Initial check after a short delay to allow initial render.
+    // Initial check after a short delay to allow the first render to complete.
     const timerId = setTimeout(updateVisibility, 100);
 
+    // Cleanup listeners when the component unmounts or path changes
     return () => {
       clearTimeout(timerId);
-      if (rootElement) {
-        observer.unobserve(rootElement);
-      }
+      observer.unobserve(document.body);
       window.removeEventListener('scroll', updateVisibility);
     };
   }, [pathname]);

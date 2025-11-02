@@ -75,7 +75,7 @@ const ProjectSlider: React.FC = () => {
 
             {!isLoading && !error && projects.length > 0 && (
                 <div 
-                    className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden py-4 fade-edges cursor-grab active:cursor-grabbing"
+                    className="relative w-screen left-1/2 -translate-x-1/2 overflow-hidden py-4 cursor-grab active:cursor-grabbing"
                 >
                     <motion.div
                         className="flex"
