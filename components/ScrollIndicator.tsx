@@ -6,48 +6,63 @@ const ScrollIndicator: React.FC = () => {
   const { pathname } = useLocation();
   const [isVisible, setIsVisible] = useState(false);
 
+  // This effect is responsible for SHOWING the indicator.
+  // It checks if the page is scrollable after content has had time to load.
   useEffect(() => {
-    const updateVisibility = () => {
-      // Check if the page content is taller than the viewport
-      const isContentScrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
-      // Check if the user has scrolled down past a small threshold
-      const hasUserScrolled = window.scrollY > 50;
-      
-      // The indicator should only be visible if the page IS scrollable AND the user has NOT scrolled yet.
-      setIsVisible(isContentScrollable && !hasUserScrolled);
+    // Reset state on navigation to ensure it re-evaluates for the new page
+    setIsVisible(false);
+
+    const checkAndShow = () => {
+      const isScrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
+      // Only show if the page is scrollable AND the user hasn't already scrolled down
+      if (isScrollable && window.scrollY <= 50) {
+        setIsVisible(true);
+      }
     };
 
-    // Use a ResizeObserver to detect when content size changes (e.g., images/data loading)
-    const observer = new ResizeObserver(updateVisibility);
-    // Observing the document body is more reliable for detecting overall page height changes.
+    // A ResizeObserver is the most reliable way to know when content has changed page height
+    const observer = new ResizeObserver(checkAndShow);
     observer.observe(document.body);
     
-    // Listen for scroll events to hide the indicator
-    window.addEventListener('scroll', updateVisibility, { passive: true });
-    
-    // Initial check after a short delay to allow the first render to complete.
-    const timerId = setTimeout(updateVisibility, 100);
+    // An initial check after a short delay as a fallback
+    const timerId = setTimeout(checkAndShow, 300);
 
-    // Cleanup listeners when the component unmounts or path changes
+    // Cleanup when the component unmounts or path changes
     return () => {
       clearTimeout(timerId);
-      observer.unobserve(document.body);
-      window.removeEventListener('scroll', updateVisibility);
+      observer.disconnect();
     };
   }, [pathname]);
+
+  // This effect is responsible for HIDING the indicator on scroll
+  useEffect(() => {
+    // If the indicator isn't visible, we don't need a scroll listener
+    if (!isVisible) return;
+
+    const hideOnScroll = () => {
+      // If user scrolls down, hide the indicator
+      if (window.scrollY > 50) {
+        setIsVisible(false);
+      }
+    };
+
+    window.addEventListener('scroll', hideOnScroll, { passive: true });
+    
+    // Cleanup the listener when the component is hidden or unmounts
+    return () => window.removeEventListener('scroll', hideOnScroll);
+  }, [isVisible]);
 
 
   return (
     <motion.div
-      key={pathname}
       initial={{ opacity: 0, y: 10 }}
       animate={{ 
         opacity: isVisible ? 1 : 0, 
         y: isVisible ? 0 : 10 
       }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
       className="fixed bottom-8 md:bottom-12 right-4 md:right-8 z-20 flex flex-col items-center pointer-events-none"
-      aria-hidden="true"
+      aria-hidden={!isVisible}
     >
       <div className="text-primary">
         <svg width="24" height="40" viewBox="0 0 24 40" className="stroke-current">

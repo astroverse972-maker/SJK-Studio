@@ -10,7 +10,7 @@ const ProjectSlider: React.FC = () => {
     const controls = useAnimation();
     const x = useMotionValue(0);
 
-    const totalWidth = projects.length * 20 * 16; // 20rem * 16px/rem
+    const totalWidth = projects.length * 26 * 16; // 26rem (w-96) + 2rem (mx-4) * 16px/rem
     const baseDuration = 40 * projects.length / 4; // Scale duration with number of projects
 
     const startInfiniteLoop = () => {
@@ -95,16 +95,16 @@ const ProjectSlider: React.FC = () => {
                         {duplicatedProjects.map((project, index) => (
                             <Link to={'/websites'} key={`${project.id}-${index}`} className="flex-shrink-0" draggable="false">
                                 <motion.div 
-                                    className="w-72 mx-4 relative"
+                                    className="w-96 mx-4 relative"
                                     style={{ flexShrink: 0 }}
                                     whileHover={{ scale: 1.05, y: -5, zIndex: 10 }}
                                     transition={{ type: 'spring', stiffness: 300, damping: 10 }}
                                 >
-                                    <div className="group relative bg-surface rounded-lg overflow-hidden border border-primary/10 transition-shadow duration-300">
+                                    <div className="group relative bg-surface rounded-lg overflow-hidden border border-primary/10 transition-shadow duration-300 aspect-[2.09/1]">
                                         <img
                                             src={project.imageURL}
                                             alt={project.title}
-                                            className="w-full h-48 object-cover pointer-events-none"
+                                            className="w-full h-full object-cover pointer-events-none"
                                         />
                                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                             <h3 className="text-primary font-bold text-lg text-center px-2">{project.title}</h3>
