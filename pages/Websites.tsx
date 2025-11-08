@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import useProjects from '../hooks/useProjects';
 import ProjectCard from '../components/ProjectCard';
 import { Project } from '../data/projects';
@@ -70,23 +70,19 @@ const Websites: React.FC = () => {
 
       {!isLoading && !error && projects.length > 0 ? (
         <motion.div
-          layout
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          <AnimatePresence>
-            {filteredProjects.map((project: Project, index: number) => (
-              <motion.div
-                key={project.id}
-                variants={cardVariants}
-                exit="exit"
-              >
-                <ProjectCard {...project} priority={index < 3} disableAnimation />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          {filteredProjects.map((project: Project, index: number) => (
+            <motion.div
+              key={project.id}
+              variants={cardVariants}
+            >
+              <ProjectCard {...project} priority={index < 3} disableAnimation />
+            </motion.div>
+          ))}
         </motion.div>
       ) : (
         !isLoading && !error && <p className="text-center text-text-dim">No projects have been added yet.</p>
